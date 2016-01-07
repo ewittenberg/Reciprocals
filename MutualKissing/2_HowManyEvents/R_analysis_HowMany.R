@@ -45,6 +45,12 @@ itemmeans
 library(lattice)
 with(subset(pairs,log10(count)<20), densityplot(~log10(count) | factor(paste(construction,eventCat)),layout=c(3,2)))
 
+
+#rename construction names
+pairs$construction <- as.character(pairs$construction)
+pairs$construction[pairs$construction=="TRA"] <- "transitive\n(Mary kissed John)"
+pairs$construction[pairs$construction=="INT"] <- "intransitive\n(Mary and John kissed each other)"
+str(pairs)
 pairs$log.how.many <- log(pairs$count+1)
 #means by condition
 conditiononlymeans <- summaryBy(log.how.many ~ eventCat + construction , FUN=c(mean,sd), data= pairs)
@@ -54,7 +60,8 @@ conditiononlymeans
 y.ticks <- c(1,1.5,2,2.5,3, 3.5,4)
 Construction <- factor(pairs$construction)
 
-bar <- ggplot(pairs, aes(x=eventCat,y=log(count+1), fill = Construction, ))
+
+bar <- ggplot(pairs, aes(x=eventCat,y=log(count+1), fill = construction, ))
 bar + theme_bw() + stat_summary(fun.y= mean, geom = "bar", colour="black", position = "dodge") + 
   stat_summary(fun.data = mean_cl_normal, geom = "errorbar", position = position_dodge(width=.9), width= 0.4) +
   scale_fill_manual(values=c("#253494", "#2ca25f"),name="Construction")  + 
@@ -72,7 +79,7 @@ bar + theme_bw() + stat_summary(fun.y= mean, geom = "bar", colour="black", posit
 #  facet_wrap(~eventCat, scales ="free")
   ggsave("EventCountsBar.pdf", width=12, height=8, unit='in')
 
-bar <- ggplot(pairs, aes(x=Construction,y=log(count+1), fill = Construction, ))
+bar <- ggplot(pairs, aes(x=construction,y=log(count+1), fill = construction, ))
 bar + theme_bw() + stat_summary(fun.y= mean, geom = "bar", colour="black", position = "dodge") + 
   stat_summary(fun.data = mean_cl_normal, geom = "errorbar", position = position_dodge(width=.9), width= 0.4) +
   scale_fill_manual(values=c("#253494", "#2ca25f"),name="Construction")  + 
@@ -89,6 +96,26 @@ bar + theme_bw() + stat_summary(fun.y= mean, geom = "bar", colour="black", posit
   scale_y_continuous(breaks=log(y.ticks), labels = y.ticks)+
   #  facet_wrap(~eventCat, scales ="free")
   ggsave("ConstructionCountBar.pdf", width=12, height=8, unit='in')
+
+barTALK <- ggplot(pairs, aes(x=construction,y=log(count+1), fill = construction, ))
+barTALK + theme_bw() + stat_summary(fun.y= mean, geom = "bar", colour="black", position = "dodge") + 
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", position = position_dodge(width=.9), width= 0.4) +
+  scale_fill_manual(values=c("#253494", "#2ca25f"),name="Construction")  + 
+  scale_colour_manual(values=c("grey50", "grey80", "black")) + 
+  theme(axis.text.y = element_text(size=26), 
+        axis.text.x = element_text(size=26),
+        strip.text.x = element_text(size=24),
+        axis.title.y = element_text(size=24),
+        legend.title = element_text(size=24),
+        legend.text = element_text(size=24),
+        axis.title.x = element_text(size=24),
+        legend.position="none")+
+  labs(x="", y="Event Counts, on log scale", fill="Construction")+
+  #scale_y_continuous(breaks=c(0.0,.5,1,1.5), labels = c("0","~1.6","~2.7","~4.5"))+
+  scale_y_continuous(breaks=log(y.ticks), labels = y.ticks)+
+  #  facet_wrap(~eventCat, scales ="free")
+  ggsave("EventCountsBarTALK.pdf", width=13, height=8, unit='in')
+
 
 
 pairbar <- ggplot(pairs, aes(x=event,y=log(count+1), fill = factor(construction)))
